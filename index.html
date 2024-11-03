@@ -13,53 +13,70 @@
             background-color: black;
             margin: 0;
             font-family: Arial, sans-serif;
-            overflow: hidden; /* Отключаем прокрутку */
+            overflow: hidden;
         }
 
         .calculator {
             display: flex;
             flex-direction: column;
             align-items: center;
-            width: 300px; /* Увеличиваем ширину калькулятора */
-            height: 400px; /* Увеличиваем высоту калькулятора */
+            width: 90vw;
+            max-width: 400px;
+            height: 80vh;
+            max-height: 600px;
         }
 
         #display {
             width: 100%;
-            height: 70px;
-            background-color: black; /* Черный фон поля */
+            height: 15%;
+            background-color: black;
             color: white;
             text-align: right;
             padding: 10px;
             border: none;
-            font-size: 32px; /* Увеличиваем размер шрифта */
-            font-weight: bold; /* Жирный текст */
+            font-size: 2em;
+            font-weight: bold;
+            box-sizing: border-box;
         }
 
         .buttons {
             display: grid;
-            grid-template-columns: repeat(4, 70px); /* Увеличиваем размер кнопок */
+            grid-template-columns: repeat(4, 1fr);
             gap: 10px;
+            width: 100%;
+            height: 85%;
         }
 
         button {
-            width: 70px; /* Увеличиваем ширину кнопок */
-            height: 70px; /* Увеличиваем высоту кнопок */
+            width: 100%;
+            height: 100%;
             background-color: white;
             color: black;
             border: none;
-            font-size: 24px; /* Увеличиваем размер шрифта кнопок */
+            font-size: 2em; /* Размер текста зависит от кнопок */
             cursor: pointer;
         }
 
         button:hover {
             background-color: #f0f0f0;
         }
+
+        /* Адаптивные стили для маленьких экранов */
+        @media (max-width: 400px) {
+            #display {
+                font-size: 1.5em;
+                padding: 5px;
+            }
+
+            button {
+                font-size: 1.5em;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="calculator">
-        <input type="text" id="display" value="0" disabled> <!-- Устанавливаем значение 0 -->
+        <input type="text" id="display" value="0" disabled>
         <div class="buttons">
             <button onclick="clearDisplay()">C</button>
             <button onclick="appendToDisplay('/')">/</button>
@@ -72,17 +89,16 @@
             <button onclick="appendToDisplay('4')">4</button>
             <button onclick="appendToDisplay('5')">5</button>
             <button onclick="appendToDisplay('6')">6</button>
-            <button onclick="calculateResult()">=</button>
+            <button onclick="appendToDisplay('0')">0</button> <!-- Кнопка 0 -->
             <button onclick="appendToDisplay('1')">1</button>
             <button onclick="appendToDisplay('2')">2</button>
             <button onclick="appendToDisplay('3')">3</button>
-            <button onclick="appendToDisplay('0')">0</button>
+            <button onclick="calculateResult()">=</button> <!-- Кнопка равно -->
         </div>
     </div>
     <script>
         function appendToDisplay(value) {
             const display = document.getElementById("display");
-            // Если текущее значение 0, заменяем его на пустую строку
             if (display.value === "0") {
                 display.value = '';
             }
@@ -90,7 +106,7 @@
         }
 
         function clearDisplay() {
-            document.getElementById("display").value = '0'; // Устанавливаем 0 при очистке
+            document.getElementById("display").value = '0';
         }
 
         function calculateResult() {
