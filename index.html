@@ -22,29 +22,30 @@
             align-items: center;
             width: 90vw;
             max-width: 400px;
-            height: 80vh;
-            max-height: 600px;
+            height: 85vh;
+            max-height: 700px;
         }
 
         #display {
             width: 100%;
-            height: 15%;
+            height: 35%; /* Увеличенная высота дисплея */
             background-color: black;
             color: white;
             text-align: right;
-            padding: 10px;
+            padding: 20px;
             border: none;
-            font-size: 2em;
+            font-size: 2.5em;
             font-weight: bold;
             box-sizing: border-box;
+            margin-bottom: 5px; /* Уменьшенный отступ между экраном и кнопками */
         }
 
         .buttons {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
+            grid-template-columns: repeat(5, 1fr); /* 5 колонок для дополнительных функций */
+            gap: 5px; /* Уменьшенный интервал между кнопками */
             width: 100%;
-            height: 85%;
+            height: 65%;
         }
 
         button {
@@ -53,7 +54,7 @@
             background-color: white;
             color: black;
             border: none;
-            font-size: 2em; /* Размер текста зависит от кнопок */
+            font-size: 1.2em;
             cursor: pointer;
         }
 
@@ -64,12 +65,12 @@
         /* Адаптивные стили для маленьких экранов */
         @media (max-width: 400px) {
             #display {
-                font-size: 1.5em;
-                padding: 5px;
+                font-size: 2em;
+                padding: 10px;
             }
 
             button {
-                font-size: 1.5em;
+                font-size: 1em;
             }
         }
     </style>
@@ -79,21 +80,30 @@
         <input type="text" id="display" value="0" disabled>
         <div class="buttons">
             <button onclick="clearDisplay()">C</button>
+            <button onclick="deleteLast()">del</button>
+            <button onclick="appendToDisplay('(')">(</button>
+            <button onclick="appendToDisplay(')')">)</button>
             <button onclick="appendToDisplay('/')">/</button>
+            <button onclick="appendToDisplay('sin(')">sin</button>
+            <button onclick="appendToDisplay('cos(')">cos</button>
+            <button onclick="appendToDisplay('tan(')">tan</button>
             <button onclick="appendToDisplay('*')">*</button>
-            <button onclick="appendToDisplay('-')">-</button>
+            <button onclick="appendToDisplay('sqrt(')">√</button>
             <button onclick="appendToDisplay('7')">7</button>
             <button onclick="appendToDisplay('8')">8</button>
             <button onclick="appendToDisplay('9')">9</button>
-            <button onclick="appendToDisplay('+')">+</button>
+            <button onclick="appendToDisplay('-')">-</button>
+            <button onclick="appendToDisplay('^')">xʸ</button> <!-- Кнопка для степени -->
             <button onclick="appendToDisplay('4')">4</button>
             <button onclick="appendToDisplay('5')">5</button>
             <button onclick="appendToDisplay('6')">6</button>
-            <button onclick="appendToDisplay('0')">0</button> <!-- Кнопка 0 -->
+            <button onclick="appendToDisplay('+')">+</button>
+            <button onclick="appendToDisplay('.')">.</button>
             <button onclick="appendToDisplay('1')">1</button>
             <button onclick="appendToDisplay('2')">2</button>
             <button onclick="appendToDisplay('3')">3</button>
-            <button onclick="calculateResult()">=</button> <!-- Кнопка равно -->
+            <button onclick="appendToDisplay('0')">0</button> <!-- Поменял местами кнопки -->
+            <button onclick="calculateResult()">=</button> <!-- Поменял местами кнопки -->
         </div>
     </div>
     <script>
@@ -109,13 +119,35 @@
             document.getElementById("display").value = '0';
         }
 
+        function deleteLast() {
+            const display = document.getElementById("display");
+            display.value = display.value.slice(0, -1) || '0'; // Удаляем последний символ
+        }
+
         function calculateResult() {
             const display = document.getElementById("display");
             try {
-                display.value = eval(display.value);
+                // Обработка функций с автоматическим закрытием скобок
+                let expression = display.value
+                    .replace(/sin\(/g, 'Math.sin(toRadians(')
+                    .replace(/cos\(/g, 'Math.cos(toRadians(')
+                    .replace(/tan\(/g, 'Math.tan(toRadians(')
+                    .replace(/sqrt\(/g, 'Math.sqrt(')
+                    .replace(/\^/g, '**'); // Используем возведение в степень с помощью **
+
+                // Добавляем недостающие закрывающие скобки
+                const openParentheses = (expression.match(/\(/g) || []).length;
+                const closeParentheses = (expression.match(/\)/g) || []).length;
+                expression += ')'.repeat(openParentheses - closeParentheses);
+
+                display.value = eval(expression); // Выполняем выражение
             } catch {
                 display.value = 'Ошибка';
             }
+        }
+
+        function toRadians(degrees) {
+            return degrees * (Math.PI / 180);
         }
     </script>
 </body>
