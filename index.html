@@ -16,36 +16,44 @@
             overflow: hidden;
         }
 
+        /* Сообщение для десктопных пользователей */
+        #desktop-message {
+            color: white;
+            font-size: 1.5em;
+            text-align: center;
+            display: none;
+        }
+
+        /* Стили для мобильных пользователей */
         .calculator {
             display: flex;
             flex-direction: column;
             align-items: center;
-            width: 90vw;
+            width: 100vw;
             max-width: 400px;
-            height: 85vh;
-            max-height: 700px;
+            height: 100vh;
         }
 
         #display {
             width: 100%;
-            height: 40%; /* Увеличенная высота дисплея */
+            height: 25%; /* Высота дисплея */
             background-color: black;
             color: white;
             text-align: right;
             padding: 10px 20px;
             border: none;
-            font-size: 3em; /* Увеличен размер начального числа */
+            font-size: 2.5em;
             font-weight: bold;
             box-sizing: border-box;
-            margin-bottom: 10px; /* Уменьшенный отступ между экраном и кнопками */
         }
 
         .buttons {
             display: grid;
-            grid-template-columns: repeat(5, 1fr); /* 5 колонок для дополнительных функций */
-            gap: 5px; /* Уменьшенный интервал между кнопками */
+            grid-template-columns: repeat(5, 1fr); /* 5 колонок для функций */
+            gap: 5px;
             width: 100%;
-            height: 60%;
+            height: 75%; /* Кнопки занимают оставшееся место */
+            align-self: end;
         }
 
         button {
@@ -54,7 +62,7 @@
             background-color: white;
             color: black;
             border: none;
-            font-size: 1.2em; /* Размер текста кнопок */
+            font-size: 1.2em;
             cursor: pointer;
         }
 
@@ -65,10 +73,8 @@
         /* Адаптивные стили для маленьких экранов */
         @media (max-width: 400px) {
             #display {
-                font-size: 2.5em;
-                padding: 10px;
+                font-size: 2em;
             }
-
             button {
                 font-size: 1em;
             }
@@ -76,6 +82,8 @@
     </style>
 </head>
 <body>
+    <div id="desktop-message">Это приложение доступно только на мобильных устройствах.</div>
+
     <div class="calculator">
         <input type="text" id="display" value="0" disabled>
         <div class="buttons">
@@ -106,7 +114,16 @@
             <button onclick="calculateResult()">=</button> <!-- Поменял местами кнопки -->
         </div>
     </div>
+
     <script>
+        function detectDevice() {
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            if (!isMobile) {
+                document.getElementById('desktop-message').style.display = 'block';
+                document.querySelector('.calculator').style.display = 'none';
+            }
+        }
+
         function appendToDisplay(value) {
             const display = document.getElementById("display");
             if (display.value === "0") {
@@ -121,26 +138,24 @@
 
         function deleteLast() {
             const display = document.getElementById("display");
-            display.value = display.value.slice(0, -1) || '0'; // Удаляем последний символ
+            display.value = display.value.slice(0, -1) || '0';
         }
 
         function calculateResult() {
             const display = document.getElementById("display");
             try {
-                // Обработка функций с автоматическим закрытием скобок
                 let expression = display.value
                     .replace(/sin\(/g, 'Math.sin(toRadians(')
                     .replace(/cos\(/g, 'Math.cos(toRadians(')
                     .replace(/tan\(/g, 'Math.tan(toRadians(')
                     .replace(/sqrt\(/g, 'Math.sqrt(')
-                    .replace(/\^/g, '**'); // Используем возведение в степень с помощью **
+                    .replace(/\^/g, '**');
 
-                // Добавляем недостающие закрывающие скобки
                 const openParentheses = (expression.match(/\(/g) || []).length;
                 const closeParentheses = (expression.match(/\)/g) || []).length;
                 expression += ')'.repeat(openParentheses - closeParentheses);
 
-                display.value = eval(expression); // Выполняем выражение
+                display.value = eval(expression);
             } catch {
                 display.value = 'Ошибка';
             }
@@ -149,7 +164,10 @@
         function toRadians(degrees) {
             return degrees * (Math.PI / 180);
         }
+
+        detectDevice();
     </script>
 </body>
 </html>
+
 
