@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, initial-scale=1.0, maximum-scale=1.0">
-    <title>Калькулятор</title>
+    <title>Calculator</title>
     <style>
         body {
             display: flex;
@@ -14,46 +14,51 @@
             margin: 0;
             font-family: Arial, sans-serif;
             overflow: hidden;
-        }
-
-        /* Сообщение для десктопных пользователей */
-        #desktop-message {
             color: white;
-            font-size: 1.5em;
-            text-align: center;
-            display: none;
         }
 
-        /* Стили для мобильных пользователей */
         .calculator {
             display: flex;
             flex-direction: column;
             align-items: center;
-            width: 100vw;
+            width: 90vw;
             max-width: 400px;
-            height: 100vh;
+            height: 85vh;
+            max-height: 700px;
         }
 
         #display {
             width: 100%;
-            height: 25%; /* Высота дисплея */
+            height: 40%;
             background-color: black;
             color: white;
             text-align: right;
             padding: 10px 20px;
             border: none;
-            font-size: 2.5em;
+            font-size: 3em;
             font-weight: bold;
             box-sizing: border-box;
+            margin-bottom: 10px;
+            box-shadow: 0px 0px 15px rgba(255, 255, 255, 0.4);
+            transition: background-color 0.2s;
+        }
+
+        .history {
+            width: 100%;
+            height: 15%;
+            overflow-y: auto;
+            font-size: 0.8em;
+            text-align: right;
+            color: #b3b3b3;
+            margin-bottom: 10px;
         }
 
         .buttons {
             display: grid;
-            grid-template-columns: repeat(5, 1fr); /* 5 колонок для функций */
+            grid-template-columns: repeat(5, 1fr);
             gap: 5px;
             width: 100%;
-            height: 75%; /* Кнопки занимают оставшееся место */
-            align-self: end;
+            height: 60%;
         }
 
         button {
@@ -64,17 +69,46 @@
             border: none;
             font-size: 1.2em;
             cursor: pointer;
+            transition: transform 0.1s;
         }
 
-        button:hover {
-            background-color: #f0f0f0;
+        button:active {
+            transform: scale(0.95);
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
         }
 
-        /* Адаптивные стили для маленьких экранов */
+        .highlight {
+            background-color: #f7c66c;
+        }
+
+        .dark-mode {
+            background-color: #333;
+            color: white;
+        }
+
+        .dark-mode #display, .dark-mode .history {
+            color: white;
+            background-color: #222;
+        }
+
+        /* Smaller theme toggle button */
+        .theme-toggle {
+            font-size: 0.8em;
+            padding: 5px 10px;
+            background-color: gray;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+
+        /* Responsive adjustments */
         @media (max-width: 400px) {
             #display {
-                font-size: 2em;
+                font-size: 2.5em;
+                padding: 10px;
             }
+
             button {
                 font-size: 1em;
             }
@@ -82,26 +116,28 @@
     </style>
 </head>
 <body>
-    <div id="desktop-message">Это приложение доступно только на мобильных устройствах.</div>
-
     <div class="calculator">
+        <button class="theme-toggle" onclick="toggleTheme()">Theme</button>
         <input type="text" id="display" value="0" disabled>
+        <div id="history" class="history">
+            <!-- Calculation history will be displayed here -->
+        </div>
         <div class="buttons">
             <button onclick="clearDisplay()">C</button>
             <button onclick="deleteLast()">del</button>
             <button onclick="appendToDisplay('(')">(</button>
             <button onclick="appendToDisplay(')')">)</button>
             <button onclick="appendToDisplay('/')">/</button>
-            <button onclick="appendToDisplay('sin(')">sin</button>
-            <button onclick="appendToDisplay('cos(')">cos</button>
-            <button onclick="appendToDisplay('tan(')">tan</button>
+            <button onclick="highlightFunction(this); appendToDisplay('sin(')">sin</button>
+            <button onclick="highlightFunction(this); appendToDisplay('cos(')">cos</button>
+            <button onclick="highlightFunction(this); appendToDisplay('tan(')">tan</button>
             <button onclick="appendToDisplay('*')">*</button>
-            <button onclick="appendToDisplay('sqrt(')">√</button>
+            <button onclick="highlightFunction(this); appendToDisplay('sqrt(')">√</button>
             <button onclick="appendToDisplay('7')">7</button>
             <button onclick="appendToDisplay('8')">8</button>
             <button onclick="appendToDisplay('9')">9</button>
             <button onclick="appendToDisplay('-')">-</button>
-            <button onclick="appendToDisplay('^')">xʸ</button>
+            <button onclick="highlightFunction(this); appendToDisplay('^')">xʸ</button>
             <button onclick="appendToDisplay('4')">4</button>
             <button onclick="appendToDisplay('5')">5</button>
             <button onclick="appendToDisplay('6')">6</button>
@@ -110,19 +146,12 @@
             <button onclick="appendToDisplay('1')">1</button>
             <button onclick="appendToDisplay('2')">2</button>
             <button onclick="appendToDisplay('3')">3</button>
-            <button onclick="appendToDisplay('0')">0</button> <!-- Поменял местами кнопки -->
-            <button onclick="calculateResult()">=</button> <!-- Поменял местами кнопки -->
+            <button onclick="appendToDisplay('0')">0</button>
+            <button onclick="calculateResult()">=</button>
         </div>
     </div>
-
     <script>
-        function detectDevice() {
-            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-            if (!isMobile) {
-                document.getElementById('desktop-message').style.display = 'block';
-                document.querySelector('.calculator').style.display = 'none';
-            }
-        }
+        const history = [];
 
         function appendToDisplay(value) {
             const display = document.getElementById("display");
@@ -155,17 +184,39 @@
                 const closeParentheses = (expression.match(/\)/g) || []).length;
                 expression += ')'.repeat(openParentheses - closeParentheses);
 
-                display.value = eval(expression);
+                const result = eval(expression);
+                display.value = result;
+                addToHistory(display.value, result);
+                flashDisplay();
             } catch {
-                display.value = 'Ошибка';
+                display.value = 'Error';
             }
+        }
+
+        function addToHistory(expression, result) {
+            history.push(`${expression} = ${result}`);
+            if (history.length > 5) history.shift();
+            document.getElementById("history").innerHTML = history.map(item => `<p>${item}</p>`).join("");
+        }
+
+        function flashDisplay() {
+            const display = document.getElementById("display");
+            display.style.backgroundColor = "#444";
+            setTimeout(() => display.style.backgroundColor = "black", 200);
         }
 
         function toRadians(degrees) {
             return degrees * (Math.PI / 180);
         }
 
-        detectDevice();
+        function toggleTheme() {
+            document.body.classList.toggle("dark-mode");
+        }
+
+        function highlightFunction(button) {
+            button.classList.add("highlight");
+            setTimeout(() => button.classList.remove("highlight"), 200);
+        }
     </script>
 </body>
 </html>
