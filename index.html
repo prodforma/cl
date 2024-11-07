@@ -30,16 +30,17 @@
         #display {
             width: 100%;
             height: 40%; /* Увеличенная высота дисплея */
-            background-color: black;
-            color: white;
+            background-color: #f5f5f5; /* Светлый фон для выделения */
+            color: black;
             text-align: right;
             padding: 10px 20px;
-            border: none;
+            border: 3px solid #ffffff; /* Белая рамка */
+            border-radius: 10px;
             font-size: 3em; /* Увеличен размер начального числа */
             font-weight: bold;
             box-sizing: border-box;
-            margin-bottom: 10px; /* Уменьшенный отступ между экраном и кнопками */
-            box-shadow: 0px 0px 15px rgba(255, 255, 255, 0.4); /* Фоновое свечение для дисплея */
+            margin-bottom: 10px;
+            box-shadow: 0px 0px 25px rgba(255, 255, 255, 0.8); /* Яркое свечение */
             transition: background-color 0.2s;
         }
 
@@ -57,7 +58,7 @@
             background-color: white;
             color: black;
             border: none;
-            font-size: 1.2em; /* Размер текста кнопок */
+            font-size: 1.2em;
             cursor: pointer;
             transition: transform 0.1s;
         }
@@ -111,8 +112,8 @@
             <button onclick="appendToDisplay('1')">1</button>
             <button onclick="appendToDisplay('2')">2</button>
             <button onclick="appendToDisplay('3')">3</button>
-            <button onclick="appendToDisplay('0')">0</button> <!-- Поменял местами кнопки -->
-            <button onclick="calculateResult()">=</button> <!-- Поменял местами кнопки -->
+            <button onclick="appendToDisplay('0')">0</button>
+            <button onclick="calculateResult()">=</button>
         </div>
     </div>
     <script>
@@ -136,22 +137,20 @@
         function calculateResult() {
             const display = document.getElementById("display");
             try {
-                // Обработка функций с автоматическим закрытием скобок
                 let expression = display.value
                     .replace(/sin\(/g, 'Math.sin(toRadians(')
                     .replace(/cos\(/g, 'Math.cos(toRadians(')
                     .replace(/tan\(/g, 'Math.tan(toRadians(')
                     .replace(/sqrt\(/g, 'Math.sqrt(')
-                    .replace(/\^/g, '**'); // Используем возведение в степень с помощью **
+                    .replace(/\^/g, '**');
 
-                // Добавляем недостающие закрывающие скобки
                 const openParentheses = (expression.match(/\(/g) || []).length;
                 const closeParentheses = (expression.match(/\)/g) || []).length;
                 expression += ')'.repeat(openParentheses - closeParentheses);
 
                 const result = eval(expression);
                 display.value = result;
-                flashDisplay(); // Мигнуть дисплеем
+                flashDisplay();
             } catch {
                 display.value = 'Ошибка';
             }
@@ -160,7 +159,7 @@
         function flashDisplay() {
             const display = document.getElementById("display");
             display.style.backgroundColor = "#444";
-            setTimeout(() => display.style.backgroundColor = "black", 200);
+            setTimeout(() => display.style.backgroundColor = "#f5f5f5", 200);
         }
 
         function toRadians(degrees) {
@@ -174,6 +173,5 @@
     </script>
 </body>
 </html>
-
 
 
